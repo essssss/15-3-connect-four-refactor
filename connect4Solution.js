@@ -24,6 +24,8 @@ class Game {
     const top = document.createElement("tr");
     top.setAttribute("id", "column-top");
 
+    // store a reference to the handleClick bound function
+    // so that we can remove the event listener correctly later
     this.handleGameClick = this.handleClick.bind(this);
 
     top.addEventListener("click", this.handleGameClick);
@@ -49,7 +51,9 @@ class Game {
       board.append(row);
     }
   }
+
   /** findSpotForCol: given column x, return top empty y (null if filled) */
+
   findSpotForCol(x) {
     for (let y = this.height - 1; y >= 0; y--) {
       if (!this.board[y][x]) {
@@ -58,7 +62,9 @@ class Game {
     }
     return null;
   }
-  /** placeInTable: update DOM to place piece into HTML table of board */
+
+  /** placeInTable: update DOM to place piece into HTML board */
+
   placeInTable(y, x) {
     const piece = document.createElement("div");
     piece.classList.add("piece");
@@ -68,6 +74,7 @@ class Game {
     const spot = document.getElementById(`${y}-${x}`);
     spot.append(piece);
   }
+
   /** endGame: announce game end */
 
   endGame(msg) {
@@ -75,6 +82,7 @@ class Game {
     const top = document.querySelector("#column-top");
     top.removeEventListener("click", this.handleGameClick);
   }
+
   /** handleClick: handle click of column top to play piece */
 
   handleClick(evt) {
@@ -91,21 +99,23 @@ class Game {
     this.board[y][x] = this.currPlayer;
     this.placeInTable(y, x);
 
+    // check for tie
+    if (this.board.every((row) => row.every((cell) => cell))) {
+      return this.endGame("Tie!");
+    }
+
     // check for win
     if (this.checkForWin()) {
       this.gameOver = true;
       return this.endGame(`The ${this.currPlayer.color} player won!`);
     }
 
-    // check for tie
-    if (this.board.every((row) => row.every((cell) => cell))) {
-      return this.endGame("Tie!");
-    }
-
     // switch players
     this.currPlayer =
       this.currPlayer === this.players[0] ? this.players[1] : this.players[0];
   }
+
+  /** checkForWin: check board cell-by-cell for "does a win start here?" */
 
   checkForWin() {
     // Check four cells to see if they're all color of current player
@@ -164,6 +174,7 @@ class Player {
     this.color = color;
   }
 }
+
 document.getElementById("start-game").addEventListener("click", () => {
   let p1 = new Player(document.getElementById("p1-color").value);
   let p2 = new Player(document.getElementById("p2-color").value);
